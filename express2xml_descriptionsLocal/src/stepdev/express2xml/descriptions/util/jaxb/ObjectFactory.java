@@ -31,7 +31,7 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
-    private final static QName _Descriptions_QNAME = new QName("thisSchema", "descriptions");
+    private final static QName _Ext_descriptions_QNAME = new QName("thisSchema", "ext_descriptions");
     private final static QName _ExpressRef_QNAME = new QName("thisSchema", "express_ref");
     private final static QName _ExtDescription_QNAME = new QName("thisSchema", "ext_description");
 
@@ -59,20 +59,20 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link DescriptionsType }
+     * Create an instance of {@link Ext_descriptionsType }
      * 
      */
-    public DescriptionsType createDescriptionsType() {
-        return new DescriptionsType();
+    public Ext_descriptionsType createExt_descriptionsType() {
+        return new Ext_descriptionsType();
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link DescriptionsType }{@code >}}
+     * Create an instance of {@link JAXBElement }{@code <}{@link Ext_descriptionsType }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "thisSchema", name = "descriptions")
-    public JAXBElement<DescriptionsType> createDescriptions(DescriptionsType value) {
-        return new JAXBElement<DescriptionsType>(_Descriptions_QNAME, DescriptionsType.class, null, value);
+    @XmlElementDecl(namespace = "thisSchema", name = "ext_descriptions")
+    public JAXBElement<Ext_descriptionsType> createExt_descriptions(Ext_descriptionsType value) {
+        return new JAXBElement<Ext_descriptionsType>(_Ext_descriptions_QNAME, Ext_descriptionsType.class, null, value);
     }
 
     /**

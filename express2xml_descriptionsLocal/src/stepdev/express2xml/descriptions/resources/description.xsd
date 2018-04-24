@@ -22,7 +22,7 @@ attributeFormDefault="qualified">
 	<attribute ref="ns:linkend" use="required"/>
 </complexType>
 
-<complexType name="descriptionsType">
+<complexType name="ext_descriptionsType">
 	<sequence>
 		<element ref="ns:ext_description" minOccurs="1" maxOccurs="unbounded"/>
 	</sequence>
@@ -36,6 +36,6 @@ attributeFormDefault="qualified">
 <attribute name="linkend" type="ns:linkendType"/>
 
 <!-- main -->
-<element name="descriptions" type="ns:descriptionsType"/>
+<element name="ext_descriptions" type="ns:ext_descriptionsType"/>
 
 </schema>

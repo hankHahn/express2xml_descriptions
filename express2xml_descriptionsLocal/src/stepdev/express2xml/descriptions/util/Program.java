@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,17 +33,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import stepdev.express2xml.descriptions.util.jaxb.DescriptionsType;
+import stepdev.express2xml.descriptions.util.jaxb.Ext_descriptionsType;
 import stepdev.express2xml.descriptions.util.jaxb.ExpressRefType;
 import stepdev.express2xml.descriptions.util.jaxb.ExtDescriptionType;
 import stepdev.express2xml.descriptions.util.jaxb.ObjectFactory;
 
 public class Program {
 
-	public static final String DESCRIPTIONS = "descriptions";
-	public static final String EXTENDED_DESCRIPTION = "ext_description";
-	public static final String EXPRESS_REFERENCE = "express_ref";
-	public static final String LINKEND = "linkend";
+	static final String DESCRIPTIONS = "descriptions";
+	static final String EXTENDED_DESCRIPTION = "ext_description";
+	static final String EXPRESS_REFERENCE = "express_ref";
+	static final String LINKEND = "linkend";
 	private static final String FILE_WITH_RESOURCES = "C:\\Users\\rd761d\\Desktop\\fileWithResource.xml";
 	
 	public static void main (String[] arguments) throws Exception{
@@ -57,48 +58,48 @@ public class Program {
 		ArrayList<Parses> parsedRemarks = parseRemarks(remarks);
 		
 		// populate classes with parses
-		JAXBElement<DescriptionsType> descriptions = generateDescriptions(parsedRemarks);
+		JAXBElement<Ext_descriptionsType> descriptions = generateDescriptions(parsedRemarks);
 		
 		// marshal classes to xml
 		marshal2xml(descriptions, makeFilename(inputFile.getPath()));
 
 		// end program
 	}
-	private static JAXBElement<DescriptionsType> generateDescriptions(List<Parses> parsedRemarks) throws XPathException {
+	private static JAXBElement<Ext_descriptionsType> generateDescriptions(List<Parses> parsedRemarks) throws XPathException {
 
 		// setup factory
 		ObjectFactory factory = new ObjectFactory();
 		
 		// new root element
-		DescriptionsType descriptions = factory.createDescriptionsType();
-		JAXBElement<DescriptionsType> descriptionsWrapped = factory.createDescriptions(descriptions);
+		Ext_descriptionsType descriptions = factory.createExt_descriptionsType();
+		JAXBElement<Ext_descriptionsType> descriptionsWrapped = factory.createExt_descriptions(descriptions);
 		
 		for (Parses parsedRemark : parsedRemarks) {
-			// create list to call values from
-			List<Parse> parse = parsedRemark.getParse();
+			// stage the parses
+			List<Parse> parses = parsedRemark.getParse();
 			
 			// new sub element
 			ExpressRefType e2 = factory.createExpressRefType();
 			JAXBElement<ExpressRefType> e2wrapped = factory.createExpressRef(e2);
 			
-			// content
-			String attribute = getResourceValue(parse.get(4).getContent());
+			// assign content
+			String attribute = getResourceValue(parses.get(4).getContent());
 			e2.setLinkend(attribute);
 			
 			// new element
 			ExtDescriptionType e1 = factory.createExtDescriptionType();
 			String text = 
-					parse.get(1).getContent()
-					+ XmlTags.BOLD_TEXT.getStart()
-					+ parse.get(2).getContent()
-					+ XmlTags.BOLD_TEXT.getFinish()
-					+ parse.get(3).getContent();
+					parses.get(1).getContent()
+					+ Tags.BOLD_TEXT.getStart()
+					+ parses.get(2).getContent()
+					+ Tags.BOLD_TEXT.getFinish()
+					+ parses.get(3).getContent();
 			
-			attribute = parse.get(0).getContent();
+			attribute = parses.get(0).getContent();
 			e1.setLinkend(attribute);
 			
-			// assemble mixed content
-			List contents = e1.getContent();
+			// assign mixed content
+			List<Serializable> contents = e1.getContent();
 			contents.add(text);
 			contents.add(e2wrapped);
 			
@@ -108,12 +109,12 @@ public class Program {
 		return descriptionsWrapped;
 	}
 	private static String getResourceValue(String parse) throws XPathException {
-		// modify the value
+		// isolate the value
 		int i = parse.indexOf(".");
 		parse = parse.substring(i + 1);
+		
 		// lookup the value
-		String attribute = findResource(parse, FILE_WITH_RESOURCES);
-		return attribute;
+		return findResource(parse, FILE_WITH_RESOURCES);
 	}
 	private static String findResource(String lookup, String fileWithResources) throws XPathException {
         try {
@@ -126,11 +127,13 @@ public class Program {
             XPathFactory xFactory = XPathFactory.newInstance();
             XPath xPath = xFactory.newXPath();
             
-            // build expression
-//			String expression = "//asdf[descendant::entity[text()=" + "'" + lookup + "'" + "]]";
-//			String expression = "//entity[text()=" + "'" + lookup + "'" + "]";
+            // build expression in xPath 2.0
+            // "the entity that ends with the lookup value"
 //			String expression = "//entity[fn:ends-with(text()," + "\"" + lookup + "\"" + ")]";
-			String expression = 
+            
+            // build expression in xPath 1.0
+            // "the entity that ends with the lookup value"
+            String expression = 
 					"//entity["
 							+ "\""
 							+ lookup
@@ -139,16 +142,12 @@ public class Program {
 							+ "\""
 							+ lookup
 							+ "\""
-							+ ") +1)]";
+							+ ") +1)"
+					+ "]";
 
             XPathExpression compiledExpression = xPath.compile(expression);
             
             // evaluate expression
-			
-//			lookup = (String) compiledExpression.evaluate(doc, XPathConstants.NODE);
-//			Node node = (Node) compiledExpression.evaluate(doc.getFirstChild(), XPathConstants.NODE);
-//            Object x = compiledExpression.evaluate(doc, XPathConstants.STRING);
-            		
 			NodeList nodeList = (NodeList) compiledExpression.evaluate(doc, XPathConstants.NODESET);
 
 			// handle evaluation
@@ -158,17 +157,16 @@ public class Program {
 			
 			for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
-                System.out.println("xPath found:" + node.getNodeType() + "/" + node.getNodeName() + "/" + node.getTextContent());
+                System.out.println("xPath found:" + node.getNodeName() + "<" + node.getNodeType() + "> " + node.getTextContent());
             }
         } catch (Exception ex) {
         	System.err.println(ex);
-//            Logger.getLogger(findResource.class.getName()).log(Level.SEVERE, null, ex);
         }
 		return lookup;
 	}
-	private static void marshal2xml(JAXBElement<DescriptionsType> descriptions, String filename) throws JAXBException {
+	private static void marshal2xml(JAXBElement<Ext_descriptionsType> descriptions, String filename) throws JAXBException {
 		// initialize marshaller
-		JAXBContext jaxbContext = JAXBContext.newInstance(DescriptionsType.class);
+		JAXBContext jaxbContext = JAXBContext.newInstance(Ext_descriptionsType.class);
 		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 		
 		// set marshaller properties
@@ -179,18 +177,18 @@ public class Program {
 		jaxbMarshaller.marshal(descriptions, System.out);
 	}
 	public enum Regexs { // each item is a declaration of the position and meaning of content
-		Quote_Content_Quote ("[\"][\\w ]+[\"]", XmlTypes.ATTRIBUTE),
-		Quote_Content_CaretOpen ("[\"][\\w ]*[<]", XmlTypes.TEXT),
-		CaretOpen_Content_CaretClose ("[<][\\w]+[>]", XmlTypes.BOLD_TEXT),
-		CaretClose_Content_BracketOpen ("[>][\\w ]+[\\[]", XmlTypes.TEXT),
-		BracketOpen_Content_BracketClose ("[\\[][\\w]+[.][\\w]+[\\]]", XmlTypes.ATTRIBUTE);
+		Quote_Content_Quote ("[\"][\\w ]+[.][\\w ]+[\"]", ContentTypes.ATTRIBUTE),
+		Quote_Content_CaretOpen ("[\"][\\w ]*[<]", ContentTypes.TEXT),
+		CaretOpen_Content_CaretClose ("[<][\\w]+[>]", ContentTypes.BOLD_TEXT),
+		CaretClose_Content_BracketOpen ("[>][\\w ]+[\\[]", ContentTypes.TEXT),
+		BracketOpen_Content_BracketClose ("[\\[][\\w]+[.][\\w]+[\\]]", ContentTypes.ATTRIBUTE);
 		
 	    // variables
 	    private String regex;
-	    private XmlTypes semantic;
+	    private ContentTypes semantic;
 	    
 	    // constructors
-	    private Regexs(String enumRegex, XmlTypes enumSemantic) {
+	    private Regexs(String enumRegex, ContentTypes enumSemantic) {
 	        this.regex = enumRegex;
 	        this.semantic = enumSemantic;
 	    }
@@ -200,49 +198,49 @@ public class Program {
 	        return this.regex;
 	    }
 	    
-	    public XmlTypes getSemantic() {
+	    public ContentTypes getSemantic() {
 	        return this.semantic;
 	    }
 	}
-	public enum XmlTypes { // each item is a supported capability within XML
-		ATTRIBUTE (XmlTags.ATTRIBUTE),
-		ELEMENT (XmlTags.ELEMENT_START, XmlTags.ELEMENT_END),
+	public enum ContentTypes { // each item is a supported capability within XML
+		ATTRIBUTE (Tags.ATTRIBUTE),
+		ELEMENT (Tags.ELEMENT_START, Tags.ELEMENT_END),
 		TEXT (),
-		BOLD_TEXT (XmlTags.BOLD_TEXT),
-		COMMENT (XmlTags.COMMENT);
+		BOLD_TEXT (Tags.BOLD_TEXT),
+		COMMENT (Tags.COMMENT);
 		
 	    // variables
-	    private XmlTags open;
-	    private XmlTags close;
-	    private XmlTags tag;
+	    private Tags open;
+	    private Tags close;
+	    private Tags tag;
 	    
 	    // constructors
-	    private XmlTypes(XmlTags enumOpen, XmlTags enumClose) {
+	    private ContentTypes(Tags enumOpen, Tags enumClose) {
 	        this.open = enumOpen;
 	        this.close = enumClose;
 	    }
 	    
-	    private XmlTypes(XmlTags enumTag) {
+	    private ContentTypes(Tags enumTag) {
 	    	this.tag = enumTag;
 	    }
 
-	    private XmlTypes() {
+	    private ContentTypes() {
 	    }
 	    
 	    // getters
-	    public XmlTags getTag() {
+	    public Tags getTag() {
 	        return this.tag;
 	    }
 	    
-	    public XmlTags getOpen() {
+	    public Tags getOpen() {
 	        return this.open;
 	    }
 	    
-	    public XmlTags getClose() {
+	    public Tags getClose() {
 	        return this.close;
 	    }
 	}
-	public enum XmlTags { // each item is expected within XML
+	public enum Tags { // each item is expected within XML
 		ELEMENT_START ("<", ">"),
 		ELEMENT_END ("</", ">"),
 		COMMENT ("<!--", "-->"),
@@ -254,7 +252,7 @@ public class Program {
 	    private String finish;
 	    
 	    // constructors
-	    private XmlTags(String enumStart, String enumFinish) {
+	    private Tags(String enumStart, String enumFinish) {
 	        this.start = enumStart;
 	        this.finish = enumFinish;
 	    }
@@ -326,7 +324,7 @@ public class Program {
 	    JFileChooser chooser = new JFileChooser();
 	    
 	    // define a filter
-	    FileNameExtensionFilter filter = new FileNameExtensionFilter("text files", "txt");
+	    FileNameExtensionFilter filter = new FileNameExtensionFilter("express files", "exp");
 	    
 	    // apply the filter
 	    chooser.setFileFilter(filter);
@@ -396,7 +394,11 @@ public class Program {
 			// decompose into parses
 			List<Parse> parsedRemark = parseRemark(remarks.get(i));
 			
-			parses.add(new Parses(parsedRemark));
+			int j = parsedRemark.size();
+			
+			if (parsedRemark.size() == 5) {
+				parses.add(new Parses(parsedRemark));
+			}
 		}
 		return parses;
 	}
@@ -423,12 +425,16 @@ public class Program {
 			if (foundMatch == true) {
 				// store the parse
 				String e = remark.substring(matcher.start() + 1, matcher.end() - 1);
-				XmlTypes t = expression.getSemantic();
+				ContentTypes t = expression.getSemantic();
 				parses.add(new Parse(e, t));
 
 				// debug
 				System.out.println("parseRemark" + parses.size() + "=" + parses.get(parses.size()-1).getContent());
-			} 
+			} else {
+				System.out.println("this remark does not match a known profile: " + remark);
+				parses.clear();
+				break;
+			}
 		}
 		return parses;
 	}
@@ -475,125 +481,4 @@ public class Program {
 			return inputLines;
 		}
 	}
-//	private static List<XmlPart> buildParts(List<Parse> parses) {
-//		// make parts
-//		List<XmlPart> parts = new ArrayList<XmlPart>();
-//
-//		// load the constructors
-//		XmlConstructors[] xmlConstructors = XmlConstructors.values();
-//
-//		String partText = null;
-//		Parse parse;
-//		String content;
-//		String label = null;
-//		XmlTypes type = null;
-//		String tagStart;
-//		String tagFinish;
-//		String tagOpenStart;
-//		String tagOpenFinish;
-//		String tagCloseStart;
-//		String tagCloseFinish;
-//		
-//		// use each constructor to make the parts
-//		for (XmlConstructors xmlConstructor : xmlConstructors) {
-//			
-//			// get the type
-//			type = xmlConstructor.getXmlType();
-//					
-//			// test the XmlType
-//			switch (type) {
-//				case ATTRIBUTE: 
-//					// get the parse
-//					parse = parses.get(xmlConstructor.getContentId());
-//					// get the content
-//					content = parse.getContent();
-//					// get the tags
-//					tagStart = type.getTag().getStart();
-//					tagFinish = type.getTag().getFinish();
-//					// get the label
-//					label = xmlConstructor.getXmlLabel().getLabel(); // this tells you the label for the tag
-//					// assemble tag
-//					partText = tagStart + label + tagFinish;
-//					parts.add(new XmlPart (partText, type));
-//					break;
-//				case BOLD_TEXT: 
-//					// get the parse
-//					parse = parses.get(xmlConstructor.getContentId());
-//					// get the content
-//					content = parse.getContent();
-//					// get the tags
-//					tagStart = type.getTag().getStart();
-//					tagFinish = type.getTag().getFinish();
-//					// assemble tag
-//					partText = tagStart + content + tagFinish;
-//					parts.add(new XmlPart (partText, type));
-//					break;
-//				case TEXT: 
-//					// get the parse
-//					parse = parses.get(xmlConstructor.getContentId());
-//					// get the content
-//					content = parse.getContent();
-//					partText = content;
-//					parts.add(new XmlPart (partText, type));
-//					break;
-//				case COMMENT:
-//					// get the parse
-//					parse = parses.get(xmlConstructor.getContentId());
-//					// get the content
-//					content = parse.getContent();
-//					// get the tags
-//					tagStart = type.getTag().getStart();
-//					tagFinish = type.getTag().getFinish();
-//					// get the label
-//					label = xmlConstructor.getXmlLabel().getLabel(); // this tells you the label for the tag
-//					// assemble tag
-//					partText = tagStart + label + content + label + tagFinish;
-//					parts.add(new XmlPart (partText, type));
-//					break;
-//					
-//				case ELEMENT:
-//					// get the tags
-//					tagOpenStart = type.getOpen().getStart();
-//					tagOpenFinish = type.getOpen().getFinish();
-//					tagCloseStart = type.getClose().getStart();
-//					tagCloseFinish = type.getClose().getFinish();
-//					
-//					// get the label
-//					label = xmlConstructor.getXmlLabel().getLabel(); // this tells you the label for the tag
-//					// assemble the opening tag
-//					String elementOpen = tagOpenStart + label + tagOpenFinish;
-//					// assemble the closing tag
-//					String elementClose = tagCloseStart + label + tagCloseFinish;
-//					
-//					parts.add(new XmlPart (elementOpen, elementClose, type));
-//					break;
-//				default:
-//					break;
-//			}
-//			XmlPart debug = parts.get(parts.size() - 1);
-//			switch (type) {
-//				case ELEMENT:
-//					System.out.println("part" + parts.size() + "(" + debug.getEnumXmlType().name() + ")" + "=" + debug.getElementOpen() + debug.getElementClose());
-//					break;
-//				default:
-//					System.out.println("part" + parts.size() + "(" + debug.getEnumXmlType().name() + ")" + "=" + debug.getText());
-//					break;
-//			}
-//
-//		}
-//		return parts;
-//	}
-//	private static String assembleParts(XmlTypes type, String content) {
-//			String e = type.getOpen().getStart();
-//			String f = content;
-//			String g = type.getClose().getStart();
-//		return e + f + g;
-//	}
-//	private static void writeContents(List<String> outputLines, String ouputFilename) throws IOException {
-//		try (FileWriter outputFile = new FileWriter(ouputFilename)) {
-//			for(String outputLine : outputLines) {
-//				outputFile.write(outputLine);
-//			}
-//		}
-//	}
 }
