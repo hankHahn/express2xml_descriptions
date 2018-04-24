@@ -11,8 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -393,8 +391,6 @@ public class Program {
 			
 			// decompose into parses
 			List<Parse> parsedRemark = parseRemark(remarks.get(i));
-			
-			int j = parsedRemark.size();
 			
 			if (parsedRemark.size() == 5) {
 				parses.add(new Parses(parsedRemark));
