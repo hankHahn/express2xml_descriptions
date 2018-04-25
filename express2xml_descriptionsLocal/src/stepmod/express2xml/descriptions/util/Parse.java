@@ -1,15 +1,15 @@
-package stepdev.express2xml.descriptions.util;
+package stepmod.express2xml.descriptions.util;
 
-import stepdev.express2xml.descriptions.util.Program.ContentTypes;
+import stepmod.express2xml.descriptions.util.Program.Semantics;
 
 public class Parse {
 
     // variables
 	private String content;
-	private ContentTypes xmlType;
+	private Semantics xmlType;
 	
     // constructors
-    Parse(String content, ContentTypes xmlType) {
+    Parse(String content, Semantics xmlType) {
         this.content = content;
         this.xmlType = xmlType;
     }
@@ -19,7 +19,7 @@ public class Parse {
         return this.content;
     }
     
-    ContentTypes getXmlType() {
+    Semantics getXmlType() {
         return this.xmlType;
     }
     
@@ -28,7 +28,7 @@ public class Parse {
         this.content = content;
     }
     
-    void setXmlType(ContentTypes type) {
+    void setXmlType(Semantics type) {
         this.xmlType = type;
     }
 }

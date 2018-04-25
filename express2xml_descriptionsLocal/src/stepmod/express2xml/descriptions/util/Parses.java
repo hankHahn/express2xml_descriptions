@@ -1,4 +1,4 @@
-package stepdev.express2xml.descriptions.util;
+package stepmod.express2xml.descriptions.util;
 
 import java.util.List;
 

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema xmlns:ns="thisSchema"
+xmlns="http://www.w3.org/2001/XMLSchema"
+targetNamespace="thisSchema"
+elementFormDefault="qualified"
+attributeFormDefault="qualified">
+
+<!-- simple types -->
+<simpleType name="booleanAsStringType">
+	<restriction base="string">
+		<pattern value="YES|NO"/>
+	</restriction>
+</simpleType>
+
+<!-- complex types -->
+<complexType name="express_refType">
+	<attribute ref="ns:linkend" use="required"/>
+</complexType>
+
+<complexType name="ext_descriptionType" mixed="true">
+	<sequence>
+		<element ref="ns:express_ref"/>
+	</sequence>
+	<attribute ref="ns:linkend" use="required"/>
+</complexType>
+
+<complexType name="ext_descriptionsType">
+	<sequence>
+		<element ref="ns:ext_description" minOccurs="1" maxOccurs="unbounded"/>
+	</sequence>
+	<attributeGroup ref="ns:rootAttributeGroup"></attributeGroup>
+</complexType>
+
+<!-- elements -->
+<element name="express_ref" type="ns:express_refType"/>
+<element name="ext_description" type="ns:ext_descriptionType"/>
+
+<!-- attributes -->
+<attribute name="linkend" type="string"/>
+<attributeGroup name="rootAttributeGroup">
+	<attribute name="module_directory" type="string" use="required"/>
+	<attribute name="schema_file" type="string" use="required"/>
+	<attribute name="rcs.date" type="string" use="required"/>
+	<attribute name="rcs.revision" type="string" use="required"/>
+	<attribute name="describe.selects" type="ns:booleanAsStringType" default="NO"/>
+	<attribute name="describe.subtype_constraints" type="ns:booleanAsStringType" default="NO"/>
+</attributeGroup>
+
+<!-- ref for rootAttributeGroup:
+<!ATTLIST ext_descriptions
+	module_directory CDATA #REQUIRED
+	schema_file CDATA #REQUIRED
+	rcs.date CDATA #REQUIRED
+	rcs.revision CDATA #REQUIRED
+	describe.selects (YES | NO) "NO"
+	describe.subtype_constraints (YES | NO) "NO"
+>
+-->
+
+<!-- main -->
+<element name="ext_descriptions" type="ns:ext_descriptionsType"/>
+
+</schema>
