@@ -38,16 +38,17 @@ import stepmod.express2xml.descriptions.util.jaxb.ObjectFactory;
 
 public class Program {
 
-	// TODO update this constant to use a relative path in an ant scenario
-	private static final String FILE_WITH_RESOURCES = "C:\\Users\\rd761d\\Desktop\\fileWithResource.xml";
+	private static final String FILE_WITH_RESOURCES = 
+			"./data/library/mim_concatenated-smrl-index.xml";
+	
+	private static final String FILE_WITH_REMARKS = 
+			"./data/resources/structural_response_definition_schema/structural_response_definition_schema.exp";
+	
 	public static void main (String[] arguments) throws Exception{
 		
 		// request a file from the user
-		File inputFile = new File(chooseFile());
-		/* TODO
-		 * add an option to run the program in an ant scenario
-		 * with a known location of the input; use a relative path
-		 */
+//		File inputFile = new File(chooseFile());
+		File inputFile = new File(FILE_WITH_REMARKS);
 	
 		// store the contents of the file
 		List<String> remarks = extractRemarks(inputFile);
@@ -63,7 +64,7 @@ public class Program {
 	
 		// end program
 	}
-	public enum Semantics { // each item is a meaning
+	public enum Semantics { // each item represents user's intent
 		ATTRIBUTE,
 		ELEMENT,
 		TEXT,
@@ -225,6 +226,14 @@ public class Program {
 		ExtDescriptionsType descriptions = factory.createExtDescriptionsType();
 		JAXBElement<ExtDescriptionsType> descriptionsWrapped = factory.createExtDescriptions(descriptions);
 		
+		// assign content
+		descriptions.setModuleDirectory("structural_response_definition_schema");
+		descriptions.setSchemaFile("structural_response_definition_schema.xml");
+		descriptions.setDescribeSelects("YES");
+		descriptions.setDescribeSubtypeConstraints("YES");
+		descriptions.setRcsDate("$Date: 2018/01/31 17:28:14 $");
+		descriptions.setRcsRevision("$Revision: 1.15 $");
+		
 		for (Parses parsedRemark : parsedRemarks) {
 			// stage the parses
 			List<Parse> parses = parsedRemark.getParse();
@@ -342,7 +351,7 @@ private static String getResourceValue(String parse) throws XPathException {
 				parses.add(new Parse(e, t));
 
 				// debug
-				System.out.println("parseRemark" + parses.size() + "=" + parses.get(parses.size()-1).getContent());
+				System.out.println("parse" + parses.size() + "=" + parses.get(parses.size()-1).getContent());
 			} else {
 				System.out.println("this remark does not match a known profile: " + remark);
 				parses.clear();
