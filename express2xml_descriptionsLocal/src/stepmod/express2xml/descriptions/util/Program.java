@@ -38,11 +38,16 @@ import stepmod.express2xml.descriptions.util.jaxb.ObjectFactory;
 
 public class Program {
 
+	// ant paths
 	private static final String FILE_WITH_RESOURCES = 
 			"./data/library/mim_concatenated-smrl-index.xml";
 	
+//	private static final String FILE_WITH_REMARKS = 
+//			"./data/resources/structural_response_definition_schema/markdownRemark.exp";
+	
+	// test paths
 	private static final String FILE_WITH_REMARKS = 
-			"./data/resources/structural_response_definition_schema/structural_response_definition_schema.exp";
+			"C:\\stepmod\\data\\resources\\structural_response_definition_schema\\markdownRemark.exp";
 	
 	public static void main (String[] arguments) throws Exception{
 		
@@ -127,9 +132,9 @@ public class Program {
 	    return null;
     }
 	private static List<String> extractRemarks(File inputFile) throws IOException, FileNotFoundException {
-		final String remarkOpener = "(*";
+		final String remarkOpener = "(* describe";
 		final String remarkCloser = "*)";
-
+		
 		try (
 				FileReader fileContents = new FileReader(inputFile);
 				BufferedReader bufferedContents = new BufferedReader(fileContents)){
@@ -332,7 +337,7 @@ private static String getResourceValue(String parse) throws XPathException {
 		Pattern pattern;
 		Matcher matcher;
 		boolean foundMatch;
-		
+		// TODO need new regexs
 		// pass enum to array for looping
 		Regexs[] expressions = Regexs.values();
 		
