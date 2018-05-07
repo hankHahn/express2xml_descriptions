@@ -6,12 +6,12 @@ public class Parse {
 
     // variables
 	private String content;
-	private Semantics xmlType;
+	private Semantics semantic;
 	
     // constructors
-    Parse(String content, Semantics xmlType) {
+    Parse(String content, Semantics semantic) {
         this.content = content;
-        this.xmlType = xmlType;
+        this.semantic = semantic;
     }
     
     // getters
@@ -19,8 +19,8 @@ public class Parse {
         return this.content;
     }
     
-    Semantics getXmlType() {
-        return this.xmlType;
+    Semantics getSemantic() {
+        return this.semantic;
     }
     
     // setters
@@ -28,7 +28,7 @@ public class Parse {
         this.content = content;
     }
     
-    void setXmlType(Semantics type) {
-        this.xmlType = type;
+    void setSemantic(Semantics semantic) {
+        this.semantic = semantic;
     }
 }

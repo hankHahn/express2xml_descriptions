@@ -31,10 +31,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import jsdai.lang.SdaiException;
+import jsdai.lang.SdaiRepository;
+import jsdai.lang.SdaiSession;
+import jsdai.lang.SdaiTransaction;
 import stepmod.express2xml.descriptions.util.jaxb.ExpressRefType;
 import stepmod.express2xml.descriptions.util.jaxb.ExtDescriptionType;
 import stepmod.express2xml.descriptions.util.jaxb.ExtDescriptionsType;
 import stepmod.express2xml.descriptions.util.jaxb.ObjectFactory;
+
 
 public class Program {
 
@@ -51,12 +56,15 @@ public class Program {
 	
 	public static void main (String[] arguments) throws Exception{
 		
-		// request a file from the user
+		// identify input
 //		File inputFile = new File(chooseFile());
 		File inputFile = new File(FILE_WITH_REMARKS);
 	
+		getExpress(FILE_WITH_REMARKS);
+
+		
 		// store the contents of the file
-		List<String> remarks = extractRemarks(inputFile);
+		List<String> remarks = getRemarks(inputFile);
 		
 		// parse remarks
 		ArrayList<Parses> parsedRemarks = parseRemarks(remarks);
@@ -68,6 +76,21 @@ public class Program {
 		marshal2xml(descriptions, makeFilename(inputFile.getPath()));
 	
 		// end program
+	}
+	private static void getExpress(String fileWithRemarks) throws SdaiException {
+		SdaiSession session = SdaiSession.openSession();
+		SdaiTransaction trans = session.startTransactionReadWriteAccess();
+		
+		SdaiRepository repo = session.importClearTextEncoding(null, fileWithRemarks, null);
+		
+		System.out.println(repo.getName());
+		//  repo.openRepository() -- already open after import
+		
+//		repo.exportClearTextEncoding(fileWithRemarks);
+//		trans.endTransactionAccessAbort();
+//		repo.closeRepository();
+//		repo.deleteRepository();
+//		session.closeSession();
 	}
 	public enum Semantics { // each item represents user's intent
 		ATTRIBUTE,
@@ -131,7 +154,7 @@ public class Program {
 		}
 	    return null;
     }
-	private static List<String> extractRemarks(File inputFile) throws IOException, FileNotFoundException {
+	private static List<String> getRemarks(File inputFile) throws IOException, FileNotFoundException {
 		final String remarkOpener = "(* describe";
 		final String remarkCloser = "*)";
 		

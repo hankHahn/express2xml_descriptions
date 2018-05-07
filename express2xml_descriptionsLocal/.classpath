@@ -11,5 +11,10 @@
 			<attribute name="owner.project.facets" value="jpt.jaxb"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/eclipse_ide/ide/photon/eclipse/plugins/net.jsdai.runtime_4.1.505.v201112201320/jsdai_runtime.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://doc.jsdai.net/jsdai_doc/api_ref/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
