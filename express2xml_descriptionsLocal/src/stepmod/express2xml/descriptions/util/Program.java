@@ -41,6 +41,9 @@ public class Program {
 	private static final String FILE_WITH_RESOURCES = 
 			"./data/library/mim_concatenated-smrl-index.xml";
 	
+//	private static final String FILE_WITH_RESOURCES = 
+//			"C:\\stepmod\\data\\library\\mim_concatenated-smrl-index.xml";
+	
 	private static final String FILE_WITH_REMARKS = 
 			"./data/resources/structural_response_definition_schema/structural_response_definition_schema.exp";
 	
@@ -77,8 +80,6 @@ public class Program {
 		CaretOpen_Content_CaretClose ("[<][\\w]+[>]", Semantics.BOLD_TEXT),
 		CaretClose_Content_BracketOpen ("[>][\\w ]+[\\[]", Semantics.TEXT),
 		BracketOpen_Content_BracketClose ("[\\[][\\w]+[.][\\w]+[\\]]", Semantics.ATTRIBUTE);
-		
-		// TODO consider this as a profile; make new enum for each profile?
 		
 	    // variables
 	    private String regex;
@@ -184,6 +185,8 @@ public class Program {
             // "the entity that ends with the lookup value"
 //			String expression = "//entity[fn:ends-with(text()," + "\"" + lookup + "\"" + ")]";
             
+            lookup = "." + lookup;
+            
             // build expression in xPath 1.0
             // "the entity that ends with the lookup value"
             String expression = 
@@ -227,12 +230,19 @@ public class Program {
 		JAXBElement<ExtDescriptionsType> descriptionsWrapped = factory.createExtDescriptions(descriptions);
 		
 		// assign content
-		descriptions.setModuleDirectory("structural_response_definition_schema");
-		descriptions.setSchemaFile("structural_response_definition_schema.xml");
-		descriptions.setDescribeSelects("YES");
-		descriptions.setDescribeSubtypeConstraints("YES");
-		descriptions.setRcsDate("$Date: 2018/01/31 17:28:14 $");
-		descriptions.setRcsRevision("$Revision: 1.15 $");
+//		descriptions.setModuleDirectory("structural_response_definition_schema");
+//		descriptions.setSchemaFile("structural_response_definition_schema.xml");
+//		descriptions.setDescribeSelects("YES");
+//		descriptions.setDescribeSubtypeConstraints("YES");
+//		descriptions.setRcsDate("$Date: 2018/01/31 17:28:14 $");
+//		descriptions.setRcsRevision("$Revision: 1.15 $");
+		descriptions.setModuleDirectory("attribute");
+		descriptions.setSchemaFile("attribute");
+		descriptions.setDescribeSelects("attribute");
+		descriptions.setDescribeSubtypeConstraints("attribute");
+		descriptions.setRcsDate("attribute");
+		descriptions.setRcsRevision("attribute");
+		
 		
 		for (Parses parsedRemark : parsedRemarks) {
 			// stage the parses
@@ -300,15 +310,15 @@ private static String getResourceValue(String parse) throws XPathException {
 			timeFormat.applyPattern(pattern);
 			
 			// construct the name
-			outputFilename = filePath + timeFormat.format(new Date()) + FILE_EXTENSION;
+			outputFilename = filePath + "_descriptions" + timeFormat.format(new Date()) + FILE_EXTENSION;
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 			// inform reader of exception handling
-			System.out.println("Exception thrown regarding localization; filename will not include timestamp.");
+			System.out.println("Localization exception; filename will not include timestamp.");
 			
 			// construct the name
-			outputFilename = filePath + FILE_EXTENSION;
+			outputFilename = filePath + "_descriptions" + FILE_EXTENSION;
 		}
 		return outputFilename;
 	}
@@ -353,7 +363,7 @@ private static String getResourceValue(String parse) throws XPathException {
 				// debug
 				System.out.println("parse" + parses.size() + "=" + parses.get(parses.size()-1).getContent());
 			} else {
-				System.out.println("this remark does not match a known profile: " + remark);
+				System.out.println("this remark does not match an expected profile: " + remark);
 				parses.clear();
 				break;
 			}
